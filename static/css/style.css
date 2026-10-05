@@ -1,0 +1,1730 @@
+/* ------------------------------------------------------------------ font */
+
+/* Inter (latin subset, variable weight 400-800), served with the page and
+   preloaded, so every platform shows the same font. Until it arrives, Arial
+   scaled to Inter's metrics stands in, so the swap does not move the text. */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("../fonts/inter-latin.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter Fallback";
+  src: local("Arial");
+  size-adjust: 107.12%;
+  ascent-override: 90.44%;
+  descent-override: 22.52%;
+  line-gap-override: 0%;
+}
+
+/* ------------------------------------------------------------------ tokens */
+
+:root {
+  --font: "Inter", "Inter Fallback", sans-serif;
+  /* BibTeX only: its fields are aligned with spaces. */
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --bg: #ffffff;
+  --bg-tint: #f5f5f5;
+  --surface: #ffffff;
+  --border: #e3e6ea;
+  --text: #16191d;
+  --text-muted: #5d6670;
+  --accent: #2f6a86;          /* deepened paper token blue */
+  --accent-soft: rgba(47, 106, 134, 0.10);
+  --tok: #3b6e8a;             /* paper colours (method figure), deepened for text */
+  --word: #b56d12;
+  --t: #8a5368;
+  --best-bg: rgba(47, 106, 134, 0.12);
+  --shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 6px 20px rgba(16, 24, 40, 0.06);
+  --role-skin: #a87b5a;       /* original sequences (body colour of the renders) */
+  --role-red: #c9574c;        /* right hand */
+  --role-blue: #4f78c2;       /* left hand */
+  --role-purple: #6f5a8e;     /* both hands */
+  --role-compose: #2f8a4c;    /* composed sequences: a hue no body part of the renders uses */
+  --role-gray: #757c85;       /* captures whose render has no hand colour */
+  /* Baselines: the hue of each method's body in the comparison renders,
+     deepened for text like --accent is for COSMI's blue-grey body. */
+  --method-himo: #a54a5e;     /* pink body */
+  --method-prior-mdm: #8659a6; /* lavender body */
+  --method-mdm: #866c3c;      /* khaki body */
+  /* One colour per letter of COSMI: brown, red, blue, blue-violet, purple.
+     Red turns to blue between O and S, and blue to purple only at the end,
+     so purple appears once. The acronym letters of the subtitle use the
+     same colours. */
+  --cosmi-c: var(--role-skin);
+  --cosmi-o: var(--role-red);
+  --cosmi-s: var(--role-blue);
+  --cosmi-m: color-mix(in srgb, var(--role-blue) 50%, var(--role-purple));
+  --cosmi-i: var(--role-purple);
+  --gradient: linear-gradient(90deg, var(--cosmi-c) 10%, var(--cosmi-o) 30%, var(--cosmi-s) 50%, var(--cosmi-m) 70%, var(--cosmi-i) 90%);
+  --radius: 14px;
+  --radius-sm: 9px;
+  --narrow: 820px;
+  --wide: 1180px;
+  --content: 1080px;        /* one width for every block: navbar, teaser, text, figures */
+  --gutter: clamp(16px, 4vw, 32px);
+  color-scheme: only light;
+}
+
+/* ------------------------------------------------------------------ base */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 17.5px;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 1.06rem;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Browsers give form controls their own system font: use the page font. */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+pre,
+code {
+  font-family: var(--font-mono);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+h2 {
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+p {
+  margin: 0 0 1rem;
+}
+
+/* No lone word on the last line of a paragraph or caption. */
+p,
+figcaption,
+dd,
+.card p {
+  text-wrap: pretty;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+img,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+img {
+  height: auto;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.icon-fill {
+  fill: currentColor !important;
+  stroke: none !important;
+}
+
+.icon {
+  width: 1.1em;
+  height: 1.1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+}
+
+/* ------------------------------------------------------------------ layout */
+
+.narrow,
+.wide {
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.narrow {
+  max-width: calc(var(--narrow) + 2 * var(--gutter));
+}
+
+.wide {
+  max-width: calc(var(--content) + 2 * var(--gutter));
+}
+
+.section {
+  padding-top: clamp(40px, 5vw, 64px);
+  padding-bottom: clamp(32px, 4vw, 48px);
+  scroll-margin-top: 60px;
+}
+
+.subsection {
+  margin-top: clamp(48px, 6vw, 72px);
+  scroll-margin-top: 72px;
+}
+
+.section-tinted {
+  background: var(--bg-tint);
+}
+
+.eyebrow {
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+}
+
+.section .narrow > p:not(.eyebrow) {
+  color: var(--text-muted);
+}
+
+/* Section intros: main.js narrows each column to its fitted paragraph width. */
+.narrow.prose {
+  max-width: calc(var(--content) + 2 * var(--gutter));
+}
+
+.narrow.prose > p:not(.eyebrow) {
+  text-align: justify;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+
+.section .narrow + .wide {
+  margin-top: 2.25rem;
+}
+
+h3.sub {
+  margin: 2.5rem 0 1rem;
+}
+
+h3.sub:first-child {
+  margin-top: 0;
+}
+
+/* ------------------------------------------------------------------ navbar */
+
+.navbar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 100;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: saturate(180%) blur(14px);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+  border-bottom: 1px solid var(--border);
+  transform: translateY(-100%);
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.navbar.visible,
+.navbar:focus-within {
+  transform: none;
+}
+
+.navbar-inner {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  max-width: calc(var(--content) + 2 * var(--gutter));
+  height: 60px;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.navbar-brand {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  flex: none;
+}
+
+.navbar-brand:hover {
+  text-decoration: none;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.navbar-links::-webkit-scrollbar {
+  display: none;
+}
+
+.navbar-links a {
+  position: relative;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: color 0.2s, background 0.2s;
+}
+
+.navbar-links a:hover {
+  color: var(--text);
+  background: var(--bg-tint);
+}
+
+.navbar-links a.active {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.navbar-links a.active::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: -11px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.navbar-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+}
+
+.navbar-progress span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--gradient);
+  opacity: 0.55;
+}
+
+@media (max-width: 760px) {
+  .navbar-inner {
+    gap: 12px;
+    height: 52px;
+  }
+
+  .navbar-links a.active::after {
+    bottom: -7px;
+  }
+}
+
+/* ------------------------------------------------------------------ buttons */
+
+.button,
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.2s;
+}
+
+.button {
+  padding: 0.75em 1.2em;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: var(--text);
+  color: var(--bg);
+}
+
+.button:hover {
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+/* Links that do not exist yet: same colour, no hover. */
+.button[aria-disabled="true"] {
+  cursor: default;
+  transform: none;
+}
+
+.button[aria-disabled="true"]:hover {
+  background: var(--text);
+}
+
+.button.small {
+  padding: 0.55em 0.95em;
+  font-size: 0.85rem;
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.button.small:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.button.icon-only {
+  padding: 0.6em;
+}
+
+/* A small badge for links that do not exist yet. */
+.soon {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.1em;
+  /* The letter spacing also follows the last letter: the extra left padding
+     balances it, so the word sits in the horizontal middle. */
+  padding: 0.4em 0.6em 0.4em 0.68em;
+  line-height: 1;
+  border-radius: 999px;
+  background: #fff;             /* white on the dark button: reads at a glance */
+  color: var(--text);
+  font-size: 0.62em;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Trim the text box to the capitals, so equal padding centres them exactly
+   at any zoom (the padding makes up the same total height). */
+@supports (text-box: trim-both cap alphabetic) {
+  .soon {
+    text-box: trim-both cap alphabetic;
+    padding-top: 0.577em;      /* capitals read slightly high when exactly centred */
+    padding-bottom: 0.497em;
+  }
+}
+
+.pill {
+  padding: 0.7em 1.25em;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
+}
+
+.pill .icon {
+  width: 1.15em;
+  height: 1.15em;
+  color: var(--accent);
+}
+
+.pill:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  box-shadow: 0 4px 14px rgba(16, 24, 40, 0.08);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+
+.pill.icon-only {
+  padding: 0.7em;
+}
+
+/* ------------------------------------------------------------------ hero */
+
+.hero {
+  max-width: calc(980px + 2 * var(--gutter));
+  margin-inline: auto;
+  padding: 72px var(--gutter) 40px;
+  text-align: center;
+}
+
+.hero-top {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 48px;
+}
+
+.title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35em;
+  margin-bottom: 28px;
+}
+
+.title-name {
+  font-size: clamp(3.2rem, 9vw, 5.6rem);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+
+/* COSMI in its letter colours. Each letter carries its own piece of the
+   gradient: its colour at its centre, blending into the next letter's
+   colour at the edge they share. Every letter then shows its colour at
+   any font, size, or letter spacing (one gradient over the whole word
+   puts the colours at fixed fractions of the width instead, which miss
+   the letters). The acronym letters of the subtitle use the same colours. */
+.cosmi-word > span {
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.cosmi-word > :nth-child(1) {
+  background-image: linear-gradient(90deg, var(--cosmi-c) 50%, color-mix(in srgb, var(--cosmi-c), var(--cosmi-o)));
+}
+
+.cosmi-word > :nth-child(2) {
+  background-image: linear-gradient(90deg, color-mix(in srgb, var(--cosmi-c), var(--cosmi-o)), var(--cosmi-o) 50%, color-mix(in srgb, var(--cosmi-o), var(--cosmi-s)));
+}
+
+.cosmi-word > :nth-child(3) {
+  background-image: linear-gradient(90deg, color-mix(in srgb, var(--cosmi-o), var(--cosmi-s)), var(--cosmi-s) 50%, color-mix(in srgb, var(--cosmi-s), var(--cosmi-m)));
+}
+
+.cosmi-word > :nth-child(4) {
+  background-image: linear-gradient(90deg, color-mix(in srgb, var(--cosmi-s), var(--cosmi-m)), var(--cosmi-m) 50%, color-mix(in srgb, var(--cosmi-m), var(--cosmi-i)));
+}
+
+.cosmi-word > :nth-child(5) {
+  background-image: linear-gradient(90deg, color-mix(in srgb, var(--cosmi-m), var(--cosmi-i)), var(--cosmi-i) 50%);
+}
+
+.title-sub {
+  font-size: clamp(1.3rem, 3vw, 2rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+/* The letters that spell COSMI, in the colour of the same letter in the title. */
+.acr {
+  font-weight: 800;
+}
+
+.acr-c { color: var(--cosmi-c); }
+.acr-o { color: var(--cosmi-o); }
+.acr-s { color: var(--cosmi-s); }
+.acr-m { color: var(--cosmi-m); }
+.acr-i { color: var(--cosmi-i); }
+
+.authors {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.3em 1.4em;
+  font-size: 1.12rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.author {
+  white-space: nowrap;
+}
+
+.authors a {
+  color: var(--text);
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+}
+
+.authors a:hover {
+  text-decoration: none;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.authors sup,
+.affiliations sup {
+  color: var(--text-muted);
+  font-size: 0.65em;
+  margin-left: 1px;
+}
+
+.affiliations {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.2em 1.2em;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.note {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px 1.4em;
+  margin-top: 0.6rem;
+  padding: 0.3em 0.85em;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+.note-star {
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.note-item .note-star {
+  margin-right: 4px;
+}
+
+/* Equal-contribution asterisk: Inter's asterisk is small and sits high, so
+   it is enlarged, bolded, and lowered to the middle of the numbers. */
+.star-mark {
+  display: inline-block;
+  font-size: 1.45em;
+  font-weight: 700;
+  line-height: 0;
+  vertical-align: -0.28em;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 28px 0 36px;
+}
+
+.tldr {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 28px;
+  color: var(--text);
+  font-size: 1.05rem;
+  text-align: center;
+  text-wrap: balance;   /* even line lengths, no dangling words */
+}
+
+/* A short bar in the title gradient above the text, as under the stats. */
+.tldr::before {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 3px;
+  margin: 0 auto 14px;
+  border-radius: 2px;
+  background: var(--gradient);
+}
+
+.tldr-label {
+  font-weight: 700;
+  margin-right: 0.45em;
+}
+
+/* dropdown */
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translate(-50%, -4px);
+  min-width: 260px;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  text-align: left;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
+  z-index: 60;
+}
+
+.dropdown.open .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+
+.dropdown-menu a {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: var(--text);
+}
+
+.dropdown-menu a:hover {
+  background: var(--accent-soft);
+  text-decoration: none;
+}
+
+.dropdown-menu span {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ------------------------------------------------------------------ teaser + stats */
+
+.teaser {
+  padding-bottom: clamp(36px, 5vw, 56px);
+}
+
+.media {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--bg-tint);
+}
+
+.media video,
+.media img {
+  width: 100%;
+  height: auto;
+}
+
+/* A click pauses or resumes a video (main.js). */
+.media video {
+  cursor: pointer;
+}
+
+.teaser-media {
+  box-shadow: var(--shadow);
+  aspect-ratio: 16 / 9;
+}
+
+.teaser-media video {
+  height: 100%;
+  object-fit: cover;
+}
+
+figcaption {
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-top: 0.9rem;
+  text-align: center;
+}
+
+figure {
+  margin: 0;
+}
+
+.stats {
+  max-width: calc(var(--content) + 2 * var(--gutter));
+  margin: 44px auto 0;
+  padding-inline: var(--gutter);
+  display: flex;
+}
+
+/* Columns take their content width plus an equal share of the rest, so no
+   label wraps on wide screens. */
+.stats div {
+  position: relative;
+  flex: 1 1 auto;
+  padding: 8px 18px;
+  text-align: center;
+}
+
+.stats div + div::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18%;
+  bottom: 18%;
+  width: 1px;
+  background: var(--border);
+}
+
+.stats dt {
+  font-size: clamp(1.7rem, 2.8vw, 2.35rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Range dash: a hyphen at its natural width (tabular figures widen it),
+   raised to the middle of the digits. Inter's en dash is too long here. */
+.stats dt .dash {
+  font-variant-numeric: normal;
+  font-feature-settings: "case";
+}
+
+.stats dt small {
+  font-size: 0.55em;
+  font-weight: 700;
+  margin-left: 0.12em;
+  color: var(--accent);
+}
+
+.stats dd {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.stats dd::before {
+  content: "";
+  display: block;
+  width: 22px;
+  height: 3px;
+  margin: 0 auto 8px;
+  border-radius: 2px;
+  background: var(--gradient);
+}
+
+@media (max-width: 980px) {
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    row-gap: 28px;
+  }
+
+  .stats div:nth-child(4)::before {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stats dd {
+    white-space: normal;
+  }
+
+  .stats div:nth-child(odd)::before {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------------ figures */
+
+.figure {
+  margin-top: 56px;
+  padding: clamp(16px, 3vw, 32px);
+  border-radius: var(--radius);
+  background: #fff;             /* paper figures are drawn on white */
+}
+
+.figure img {
+  width: 100%;
+}
+
+/* Figures without a caption: a thin frame, so the figure gets the full width. */
+.figure-tight {
+  margin-top: 0;
+  padding: 10px;
+}
+
+/* Subsection titles inside a section intro. */
+.prose h3.sub {
+  margin: 0.25rem 0 0.75rem;
+  font-size: 1.3rem;
+}
+
+.wide h3.sub {
+  scroll-margin-top: 80px;
+  margin: 56px 0 18px;
+  font-size: 1.3rem;
+}
+
+.figure figcaption {
+  max-width: 900px;
+  margin: 1.25rem auto 0;
+  color: #3d454e;
+  font-size: 1.02rem;
+}
+
+/* Terms of the method figure: highlighted in the figure's colours. */
+.c-tok,
+.c-word,
+.c-t {
+  padding: 0.05em 0.35em;
+  border-radius: 5px;
+  font-weight: 700;
+  white-space: nowrap;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.c-tok { color: var(--tok) !important; background: color-mix(in srgb, var(--tok) 16%, transparent); }
+.c-word { color: var(--word) !important; background: color-mix(in srgb, var(--word) 20%, transparent); }
+.c-t { color: var(--t) !important; background: color-mix(in srgb, var(--t) 18%, transparent); }
+
+/* ------------------------------------------------------------------ clips */
+
+.clip {
+  margin: 0;
+}
+
+.clip .media {
+  border: 1px solid var(--border);
+  background: #fff;
+}
+
+.clip figcaption {
+  margin-top: 8px;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  text-align: left;
+  color: var(--text);
+}
+
+/* ------------------------------------------------------------------ composition diagram */
+
+.compose {
+  position: relative;
+  margin: 8px 0 0;
+}
+
+.compose-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));   /* every clip at one size */
+  grid-template-areas:
+    "target   composed mirror_to mirror_from"
+    "source   composed mirror_to mirror_from";
+  column-gap: clamp(48px, 7.5vw, 112px);
+  row-gap: 28px;
+  align-items: center;
+}
+
+.node[data-node="target"] { grid-area: target; }
+.node[data-node="source"] { grid-area: source; }
+.node[data-node="composed"] { grid-area: composed; }
+.node[data-node="mirror_to"] { grid-area: mirror_to; }
+.node[data-node="mirror_from"] { grid-area: mirror_from; }
+
+.node {
+  text-align: center;
+}
+
+[data-role="skin"] { --role: var(--role-skin); }
+[data-role="red"] { --role: var(--role-red); }
+[data-role="blue"] { --role: var(--role-blue); }
+[data-role="purple"] { --role: var(--role-purple); }
+[data-role="compose"] { --role: var(--role-compose); }
+[data-role="gray"] { --role: var(--role-gray); }
+
+/* Labels above videos (clip roles, annotations, method names) share one
+   style: they span their video, with the corners of the small cards. */
+.node .tag,
+.panel-head .tag {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+  text-wrap: balance;
+  color: var(--role);
+  background: color-mix(in srgb, var(--role) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--role) 38%, transparent);
+}
+
+.node .media {
+  aspect-ratio: 640 / 880;
+  background: #fff;
+}
+
+.node .media video {
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.node[data-node="target"] .media video {
+  height: 111%;
+}
+
+.node .label {
+  margin: 8px 0 0;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  color: var(--text);
+  text-wrap: balance;
+}
+
+.node-composed {
+  text-align: center;
+}
+
+/* Short clip labels stay on one line where there is room. */
+@media (min-width: 1000px) {
+  .node:not(.node-composed) .label {
+    display: flex;              /* a label wider than its clip overflows evenly on both sides */
+    justify-content: center;
+    white-space: nowrap;
+  }
+}
+
+/* Tags and captions float above and below their video without taking layout
+   space: the grid then centres the videos themselves. The composed clip and
+   the two clips on its right share one centre line, midway between the left
+   pair. The gaps leave room for one caption and one tag. */
+@media (min-width: 561px) {
+  .compose-grid {
+    row-gap: 100px;
+    padding: 46px 0 40px;
+  }
+
+  .node {
+    position: relative;
+  }
+
+  .node .tag {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 0;
+    right: 0;
+    width: auto;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .node .label {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    margin: 0;
+  }
+}
+
+.node-composed .label {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Arrows: an SVG over the whole diagram, drawn by main.js. */
+.compose-arrows {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.compose-arrows .line {
+  fill: none;
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.compose-arrows .head {
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+
+/* Build-up: hidden until main.js plays the timeline (originals, mirroring, composition). */
+.compose.armed .node,
+.compose.armed .compose-arrows > * {
+  opacity: 0;
+}
+
+/* Tablets: mirrored above captured on the right, joined by a vertical arrow. */
+@media (max-width: 860px) {
+  .compose-grid {
+    grid-template-columns: 0.9fr 1.3fr 0.9fr;
+    grid-template-areas:
+      "target composed mirror_to"
+      "source composed mirror_from";
+    column-gap: 64px;
+    row-gap: 150px;
+  }
+}
+
+/* Phones: the parts in two rows, then a down arrow into the composed sequence. */
+@media (max-width: 560px) {
+  .compose-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "target      source"
+      "mirror_from mirror_to"
+      "composed    composed";
+    column-gap: 56px;
+    row-gap: 28px;
+  }
+
+  .node-composed {
+    max-width: 260px;
+    width: 100%;
+    justify-self: center;
+  }
+
+  /* One arrow into the composed clip, in the colours of the three parts
+     (body brown, right-hand red, left-hand blue) it merges. */
+  .node-composed::before {
+    content: "";
+    display: block;
+    width: 22px;
+    height: 46px;
+    margin: 4px auto 14px;
+    background: linear-gradient(180deg, var(--role-skin), var(--role-red), var(--role-blue));
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 34'%3E%3Cpath d='M7 2v28M2 23l5 8 5-8' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 34'%3E%3Cpath d='M7 2v28M2 23l5 8 5-8' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+
+  .node .tag {
+    padding: 4px 8px;
+    font-size: 0.72rem;
+  }
+
+  .node .label {
+    font-size: 0.85rem;
+  }
+}
+
+/* ------------------------------------------------------------------ chart */
+
+.table-card {
+  padding: clamp(16px, 3vw, 28px);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  margin-bottom: 48px;
+}
+
+/* ------------------------------------------------------------------ tabs + chips */
+
+.tabs,
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.tabs button,
+.chips button {
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 0.5em 1em;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tabs button:hover,
+.chips button:hover {
+  color: var(--text);
+}
+
+.tabs button[aria-selected="true"],
+.chips button[aria-pressed="true"] {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+}
+
+.chips .count {
+  opacity: 0.6;
+  margin-left: 0.35em;
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------------ segmented control */
+
+.segmented {
+  display: flex;
+  width: fit-content;
+  margin: 0 auto 28px;
+  gap: 4px;
+  padding: 4px;
+  border-radius: calc(var(--radius-sm) + 4px);   /* concentric with the options inside */
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+}
+
+/* Options have the corners and type of the labels above the videos; the
+   selected one is filled slate grey. */
+.segmented button {
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.4;
+  padding: 6px 16px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.segmented button:hover {
+  color: var(--text);
+}
+
+.segmented button[aria-pressed="true"] {
+  color: #fff;
+  background: #4a525c;
+  border-color: #4a525c;
+}
+
+/* ------------------------------------------------------------------ carousel */
+
+.carousel-stage {
+  position: relative;
+}
+
+/* Arrows beside the video; inside its edges when the screen has no room. */
+.carousel-stage .arrow {
+  position: absolute;
+  top: var(--arrow-top, 50%);
+  transform: translateY(-50%);
+  z-index: 2;
+}
+
+.carousel-stage .arrow.prev {
+  left: -64px;
+}
+
+.carousel-stage .arrow.next {
+  right: -64px;
+}
+
+@media (max-width: 1240px) {
+  .carousel-stage .arrow.prev {
+    left: 8px;
+  }
+
+  .carousel-stage .arrow.next {
+    right: 8px;
+  }
+
+  .carousel-stage .arrow {
+    background: color-mix(in srgb, var(--surface) 85%, transparent);
+    backdrop-filter: blur(6px);
+  }
+}
+
+.carousel {
+  position: relative;
+}
+
+.carousel-track {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  border-radius: var(--radius);
+}
+
+.carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.slide {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  display: flex;
+  justify-content: center;
+  margin: 0;
+}
+
+/* Every slide stretches to the tallest one; the caption box absorbs the
+   difference, so all caption boxes share one height. */
+.slide-body {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-heads {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+  align-items: stretch;       /* main.js gives every row of a carousel one height */
+}
+
+/* Labels of one row share one height, text centred. */
+.panel-head {
+  display: flex;
+  align-items: stretch;
+}
+
+.panel-head .tag {
+  margin-bottom: 0;
+}
+
+.panel-caption .short {
+  display: none;
+}
+
+/* Phones: panels are narrow, so the capsules show the short tag
+   ("Original", "Mirrored", "Composed"); the caption below has the details. */
+@media (max-width: 560px) {
+  .panel-caption .long {
+    display: none;
+  }
+
+  .panel-caption .short {
+    display: inline;
+  }
+
+  .panel-head .tag {
+    padding: 4px 8px;
+    font-size: 0.72rem;
+  }
+
+  .panel-heads {
+    gap: 6px;
+  }
+
+  /* Slides with fewer panels use the full width instead of shrinking. */
+  .slide-body {
+    max-width: 100% !important;
+  }
+
+  .slide-caption {
+    padding: 12px 14px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  /* Method names: same column gap as the videos below, each name inside its column. */
+  .compare-row {
+    gap: 6px;
+  }
+
+  .panel-heads.method-heads .tag {
+    display: block;             /* lets a long name end in an ellipsis */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* The framed video already marks COSMI as ours. */
+  .ours-note {
+    display: none;
+  }
+
+  .result-card figcaption {
+    font-size: 0.88rem;
+  }
+}
+
+/* Hand phrases and held objects in captions. */
+.hand-word {
+  color: var(--role);
+  font-weight: 700;
+}
+
+.slide .media {
+  border: 1px solid var(--border);
+  background: #fff;
+}
+
+.slide .media video {
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The composed panel is marked by its tag alone, without a frame. */
+
+.slide-caption {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 14px 0 0;
+  padding: 14px 24px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  text-align: center;
+  font-size: 1.08rem;
+  font-weight: 500;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+.carousel-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.carousel-stage .arrow,
+.carousel-nav .arrow {
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.carousel-stage .arrow:hover,
+.carousel-nav .arrow:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.dots {
+  display: flex;
+  gap: 6px;
+}
+
+.dots button {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--border);
+  cursor: pointer;
+  transition: width 0.25s, background 0.25s;
+}
+
+.dots button[aria-current="true"] {
+  width: 22px;
+  background: var(--accent);
+}
+
+/* ------------------------------------------------------------------ grids + cards */
+
+/* Key ideas of the method: raised cards, a shadow instead of a border. */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 36px;
+}
+
+.card {
+  padding: 22px 20px 20px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-align: center;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 10px 28px rgba(16, 24, 40, 0.09);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 2px 4px rgba(16, 24, 40, 0.06), 0 16px 36px rgba(16, 24, 40, 0.13);
+}
+
+.card h3 {
+  margin-bottom: 6px;
+  font-size: 1.02rem;
+}
+
+.card h3::before {
+  content: "";
+  display: block;
+  width: 22px;
+  height: 3px;
+  margin: 0 auto 10px;
+  border-radius: 2px;
+  background: var(--gradient);
+}
+
+.card p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 760px) {
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ------------------------------------------------------------------ results carousel */
+
+.card-track {
+  --per-page: 4;
+  --gap: 18px;
+  display: flex;
+  gap: var(--gap);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+
+.card-track::-webkit-scrollbar {
+  display: none;
+}
+
+.result-card {
+  flex: 0 0 calc((100% - (var(--per-page) - 1) * var(--gap)) / var(--per-page));
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.result-card .media {
+  aspect-ratio: 640 / 872;
+  border-radius: 0;
+  background: #fff;
+}
+
+.result-card .media video {
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The whole caption, centred in the space below the video. */
+.result-card figcaption {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  margin: 0;
+  padding: 14px 16px 16px;
+  border-top: 1px solid var(--border);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--text);
+  text-align: center;
+  text-wrap: pretty;
+}
+
+@media (max-width: 900px) {
+  .card-track {
+    --per-page: 2;
+  }
+}
+
+@media (max-width: 520px) {
+  .card-track {
+    --per-page: 1;
+  }
+}
+
+/* ------------------------------------------------------------------ comparisons */
+
+[data-role="accent"] { --role: var(--accent); }
+
+/* The label is a flex box, which drops the space before "(ours)". */
+.ours-note { margin-left: 0.3em; }
+[data-role="himo"] { --role: var(--method-himo); }
+[data-role="prior_mdm"] { --role: var(--method-prior-mdm); }
+[data-role="mdm"] { --role: var(--method-mdm); }
+
+
+.compare-row {
+  display: grid;
+  gap: 10px;
+}
+
+.compare-row .media {
+  aspect-ratio: 640 / 872;
+  border: 1px solid var(--border);
+  background: #fff;
+}
+
+.compare-row .media video {
+  height: 100%;
+  object-fit: cover;
+}
+
+.compare-row .media.ours {
+  border: 2px solid var(--accent);
+  box-shadow: inset 0 0 0 4px color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+
+/* ------------------------------------------------------------------ bibtex */
+
+/* BibTeX in the title colours: entry type blue, key red, field names purple. */
+.bib-type { color: var(--role-blue); font-weight: 700; }
+.bib-key { color: var(--role-red); }
+.bib-field { color: var(--role-purple); }
+
+.code-block {
+  position: relative;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-tint);
+}
+
+.code-block pre {
+  margin: 0;
+  padding: 22px;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.code-block .copy {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.code-block .copy.done {
+  border-color: #2f9e6e;
+  color: #2f9e6e;
+}
+
+/* ------------------------------------------------------------------ acknowledgements */
+
+/* Funding and affiliation logos, as on the DAMA page. Each logo sets its
+   own height (--h) in the HTML, to even out the padding inside the images. */
+.logos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 2rem;
+}
+
+.logo-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+.logo-row img {
+  width: auto;
+  height: var(--h);
+  object-fit: contain;
+}
+
+@media (max-width: 768px) {
+  .logo-row img {
+    height: 30px;
+  }
+}
+
+/* ------------------------------------------------------------------ footer */
+
+.footer {
+  padding: 36px var(--gutter);
+  border-top: 1px solid var(--border);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.footer p {
+  margin: 0;
+}
+
+/* ------------------------------------------------------------------ motion */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}

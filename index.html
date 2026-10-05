@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>COSMI: Compositional Synthesis of Multi-Object Interactions</title>
+    <meta name="description"
+        content="COSMI composes multi-object human-object interactions from single-object captures: 222k sequences and 275 hours with up to five objects, and a diffusion model that generates a variable number of objects.">
+    <link rel="canonical" href="https://ptrvilya.github.io/cosmi/">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="color-scheme" content="only light">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ptrvilya.github.io/cosmi/">
+    <meta property="og:title" content="COSMI: Compositional Synthesis of Multi-Object Interactions">
+    <meta property="og:description"
+        content="Multi-object interactions composed from single-object captures: 222k sequences, 275 hours, up to five objects.">
+    <meta property="og:image" content="https://ptrvilya.github.io/cosmi/static/videos/teaser/teaser.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel="icon" href="./static/images/favicon.svg" type="image/svg+xml">
+    <link rel="preload" as="image" href="./static/videos/teaser/teaser.webp" fetchpriority="high">
+    <link rel="preload" as="font" type="font/woff2" href="./static/fonts/inter-latin.woff2" crossorigin>
+    <link rel="stylesheet" href="./static/css/style.css">
+
+    <script defer src="./static/js/data.js"></script>
+    <script defer src="./static/js/main.js"></script>
+</head>
+
+<body>
+    <!-- Top navigation: slides in once the hero has scrolled out of view. -->
+    <nav class="navbar" aria-label="Sections">
+        <div class="navbar-inner">
+            <a class="navbar-brand cosmi-word" href="#top" aria-label="COSMI"><span>C</span><span>O</span><span>S</span><span>M</span><span>I</span></a>
+            <div class="navbar-links">
+                <a href="#abstract">Abstract</a>
+                <a href="#idea">Main Idea</a>
+                <a href="#dataset">Dataset</a>
+                <a href="#examples">Examples</a>
+                <a href="#method">Method</a>
+                <a href="#results">Generations</a>
+                <a href="#comparisons">Comparisons</a>
+                <a href="#hands">Extensibility</a>
+                <a href="#bibtex">BibTeX</a>
+            </div>
+        </div>
+        <div class="navbar-progress" aria-hidden="true"><span id="progress-bar"></span></div>
+    </nav>
+
+    <header class="hero" id="top">
+        <div class="hero-top">
+            <div class="dropdown" id="more-research">
+                <button class="pill" aria-expanded="false">
+                    <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10l2 2h6.5A1.5 1.5 0 0 1 20 7.5v11a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5Z" /></svg>
+                    More Research
+                    <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></svg>
+                </button>
+                <div class="dropdown-menu">
+                    <a href="https://ptrvilya.github.io/echo/" target="_blank" rel="noopener">
+                        <strong>ECHO</strong>
+                        <span>Egocentric human-object interactions · ECCV 2026</span>
+                    </a>
+                    <a href="https://ptrvilya.github.io/tridi/" target="_blank" rel="noopener">
+                        <strong>TriDi</strong>
+                        <span>Joint diffusion of humans, objects, and interactions · ICCV 2025</span>
+                    </a>
+                    <a href="https://ptrvilya.github.io/object-popup/" target="_blank" rel="noopener">
+                        <strong>Object pop-up</strong>
+                        <span>3D objects from human pose alone · CVPR 2023</span>
+                    </a>
+                    <a href="https://danieleskandar.github.io/dama/" target="_blank" rel="noopener">
+                        <strong>DAMA</strong>
+                        <span>Layered Gaussian avatars · PhysHuman @ CVPRW 2026</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <h1 class="title" aria-label="COSMI: Compositional Synthesis of Multi-Object Interactions">
+            <span class="title-name cosmi-word"><span>C</span><span>O</span><span>S</span><span>M</span><span>I</span></span>
+            <span class="title-sub"><b class="acr acr-c">C</b><b class="acr acr-o">O</b>mpositional <b class="acr acr-s">S</b>ynthesis of <b class="acr acr-m">M</b>ulti-Object <b class="acr acr-i">I</b>nteractions</span>
+        </h1>
+
+        <p class="authors">
+            <span class="author"><a href="https://danieleskandar.github.io/" target="_blank" rel="noopener">Daniel Eskandar</a><sup>1,2,3&#8239;<span class="star-mark">*</span></sup></span>
+            <span class="author"><a href="https://ptrvilya.github.io/" target="_blank" rel="noopener">Ilya A. Petrov</a><sup>1,2&#8239;<span class="star-mark">*</span></sup></span>
+            <span class="author"><a href="https://virtualhumans.mpi-inf.mpg.de/people/pons-moll.html" target="_blank" rel="noopener">Gerard Pons-Moll</a><sup>1,2,4</sup></span>
+        </p>
+        <p class="affiliations">
+            <span><sup>1</sup>University of Tübingen</span>
+            <span><sup>2</sup>Tübingen AI Center</span>
+            <span><sup>3</sup>Zuse School ELIZA</span>
+            <span><sup>4</sup>Max Planck Institute for Informatics</span>
+        </p>
+        <p class="note">
+            <span class="note-item"><span class="note-star"><span class="star-mark">*</span></span>Equal contribution</span>
+        </p>
+
+        <div class="links">
+            <a class="button" href="./static/pdf/cosmi.pdf" target="_blank" rel="noopener">
+                <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M14 3H6v18h12V7l-4-4Zm0 0v4h4M9 13h6M9 17h6" /></svg>
+                Paper
+            </a>
+            <a class="button" href="https://arxiv.org/abs/2610.03252" target="_blank" rel="noopener">
+                <svg class="icon icon-fill" aria-hidden="true" viewBox="0 0 24 24"><path d="M3.8423 0a1.0037 1.0037 0 0 0-.922.6078c-.1536.3687-.0438.6275.2938 1.1113l6.9185 8.3597-1.0223 1.1058a1.0393 1.0393 0 0 0 .003 1.4229l1.2292 1.3135-5.4391 6.4444c-.2803.299-.4538.823-.2971 1.1986a1.0253 1.0253 0 0 0 .9585.635.9133.9133 0 0 0 .6891-.3405l5.783-6.126 7.4902 8.0051a.8527.8527 0 0 0 .6835.2597.9575.9575 0 0 0 .8777-.6138c.1577-.377-.017-.7502-.306-1.1407l-7.0518-8.3418 1.0632-1.13a.9626.9626 0 0 0 .0089-1.3165L4.6336.4639s-.3733-.4535-.768-.463zm0 .272h.0166c.2179.0052.4874.2715.5644.3639l.005.006.0052.0055 10.169 10.9905a.6915.6915 0 0 1-.0072.945l-1.0666 1.133-1.4982-1.7724-8.5994-10.39c-.3286-.472-.352-.6183-.2592-.841a.7307.7307 0 0 1 .6704-.4401Zm14.341 1.5701a.877.877 0 0 0-.6554.2418l-5.6962 6.1584 1.6944 1.8319 5.3089-6.5138c.3251-.4335.479-.6603.3247-1.0292a1.1205 1.1205 0 0 0-.9763-.689zm-7.6557 12.2823 1.3186 1.4135-5.7864 6.1295a.6494.6494 0 0 1-.4959.26.7516.7516 0 0 1-.706-.4669c-.1119-.2682.0359-.6864.2442-.9083l.0051-.0055.0047-.0055z"/></svg>
+                arXiv
+            </a>
+            <a class="button" href="https://github.com/ptrvilya/cosmi" target="_blank" rel="noopener">
+                <svg class="icon icon-fill" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+                Code
+            </a>
+            <a class="button" href="#bibtex">
+                <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M7 7h4v4c0 3-2 5-4 6m8-10h4v4c0 3-2 5-4 6" /></svg>
+                BibTeX
+            </a>
+        </div>
+
+        <p class="tldr">
+            <span class="tldr-label">TL;DR</span>
+            Interactions are local, so we compose multi-object interactions from single-object captures
+            and train one diffusion model that generates interactions with one to five objects.
+        </p>
+    </header>
+
+    <section class="teaser" aria-label="Teaser">
+        <figure class="wide">
+            <div class="media teaser-media">
+                <video id="teaser-video" muted loop playsinline preload="none" disablepictureinpicture
+                    poster="./static/videos/teaser/teaser.webp" width="1920" height="1080"></video>
+            </div>
+            <figcaption>Sequences of the COSMI dataset, composed from single-object captures and rendered with
+                clothed scans.</figcaption>
+        </figure>
+
+        <dl class="stats">
+            <div><dt><span data-count="222" data-suffix="k">222k</span></dt><dd>sequences</dd></div>
+            <div><dt><span data-count="275">275</span><small>h</small></dt><dd>of motion</dd></div>
+            <div><dt><span data-count="29.7" data-decimals="1" data-suffix="M">29.7M</span></dt><dd>frames</dd></div>
+            <div><dt><span>1<span class="dash">-</span>5</span></dt><dd>objects per sequence</dd></div>
+            <div><dt><span data-count="36">36</span></dt><dd>rigid and articulated objects</dd></div>
+            <div><dt><span data-count="59">59</span></dt><dd>subjects</dd></div>
+        </dl>
+    </section>
+
+    <main>
+        <section id="abstract" class="section section-tinted">
+            <div class="narrow prose">
+                <p class="eyebrow">Abstract</p>
+                <h2>Multi-object interactions from single-object captures</h2>
+                <p>
+                    Generative models of human-object interaction are bounded by the data that exists: everyday
+                    activities involve several objects, but most captured datasets record one at a time, as
+                    multi-object capture is combinatorially expensive. Our observation is that interactions are
+                    local, so single-object captures already contain the parts of multi-object activities.
+                </p>
+                <p>
+                    We compose them: contact-consistent clips of single interactions, mirrored to balance the hands,
+                    transfer between bodies, and a language model and geometric checks admit only the pairings that
+                    are plausible, semantically and physically. Therefore, the dataset grows combinatorially with the
+                    clips rather than recording time. The COSMI dataset holds 222k sequences and 275 hours with up to
+                    five objects, nearly thirty times the largest multi-object capture, and can be extended by adding
+                    datasets or even hand-object recordings.
+                </p>
+                <p>
+                    On this data we train the COSMI method, a text-to-interaction diffusion transformer that follows
+                    how the data is built: weight-shared object slots generate a variable number of objects,
+                    predicted relative to the body parts that move them. On a benchmark with an unseen object and
+                    unseen interaction combinations, models trained on the dataset generalize to the unseen
+                    combinations. COSMI outperforms baselines in text alignment and contact accuracy, where its
+                    margin is largest on the unseen object.
+                </p>
+            </div>
+        </section>
+
+        <section id="idea" class="section">
+            <div class="narrow prose">
+                <p class="eyebrow">Main Idea</p>
+                <h2>Interactions are local</h2>
+                <p>
+                    Most interactions use only part of the body. Sitting on a stool uses the pelvis, and
+                    drinking from a bottle uses the right hand. We cut captured motion into such atomic
+                    interactions, one action per clip. Mirroring moves a right-hand phone call to the left hand.
+                    Composed on one body, the three clips form a new sequence: the person sits, calls with the
+                    left hand, then drinks with the right.
+                </p>
+            </div>
+
+            <div class="wide">
+                <!-- Nodes are placed by grid areas; main.js draws the arrows between them. -->
+                <figure class="compose" id="compose">
+                    <svg class="compose-arrows" aria-hidden="true"></svg>
+                    <div class="compose-grid">
+                        <div class="node" data-node="target" data-role="skin" data-step="0"></div>
+                        <div class="node" data-node="source" data-role="red" data-step="0"></div>
+                        <div class="node node-composed" data-node="composed" data-role="compose" data-step="3"></div>
+                        <div class="node" data-node="mirror_to" data-role="blue" data-step="2"></div>
+                        <div class="node" data-node="mirror_from" data-role="gray" data-step="0"></div>
+                    </div>
+                </figure>
+            </div>
+        </section>
+
+        <section id="dataset" class="section">
+            <div class="narrow prose">
+                <p class="eyebrow">Dataset</p>
+                <h2>The <span class="cosmi-word" role="img" aria-label="COSMI"><span>C</span><span>O</span><span>S</span><span>M</span><span>I</span></span> Dataset</h2>
+                <h3 class="sub">Composition Method</h3>
+                <p>
+                    We start from existing single-object sequences. Contact-based extraction cuts them
+                    into atomic clips, each containing a single interaction. A language model annotates each clip.
+                    Captures favour the right hand, so mirroring creates the missing left-hand clips. Finally, the
+                    composition graph combines the clips into a composed multi-object sequence.
+                </p>
+            </div>
+
+            <div class="wide">
+                <figure class="figure figure-tight">
+                    <img width="3240" height="899" decoding="async" src="./static/images/composition.webp" alt="The composition pipeline: original GRAB and BEHAVE sequences pass through contact-based extraction, annotation, and mirroring into semantic atomic interactions, which the composition graph combines into a multi-object interaction." loading="lazy">
+                </figure>
+
+                <h3 class="sub" id="examples">Dataset Examples</h3>
+                <div class="segmented" role="group" aria-label="Dataset examples" data-gallery="dataset-gallery">
+                    <button aria-pressed="true" data-key="sequential">Sequential</button>
+                    <button aria-pressed="false" data-key="simultaneous">Simultaneous</button>
+                </div>
+                <div class="carousel" id="dataset-gallery"></div>
+            </div>
+        </section>
+
+        <section id="method" class="section">
+            <div class="narrow prose">
+                <p class="eyebrow">Method</p>
+                <h2>The <span class="cosmi-word" role="img" aria-label="COSMI"><span>C</span><span>O</span><span>S</span><span>M</span><span>I</span></span> Method</h2>
+                <h3 class="sub">One Diffusion Transformer for Any Number of Objects</h3>
+                <p>
+                    COSMI generates a person and one to five objects from a text prompt with a single diffusion
+                    transformer. The transformer denoises <span class="c-tok">human tokens</span>, one per frame,
+                    and <span class="c-tok">object tokens</span>, one per four frames, at
+                    <span class="c-t">diffusion step t</span>. The <span class="c-word">text tokens</span> of the
+                    prompt, the <span class="c-word">initial poses</span>, and the <span class="c-word">name</span>
+                    and <span class="c-word">geometry</span> of every object condition the generation. Finally, the
+                    model places each object relative to the body joint that drives it.
+                </p>
+            </div>
+
+            <div class="wide">
+                <figure class="figure figure-tight">
+                    <img width="3240" height="1118" decoding="async" src="./static/images/method.webp" alt="The COSMI method: one transformer denoises human tokens and object tokens, conditioned on CLIP text tokens, the initial poses, and the name and BPS geometry of every object, and decodes the human motion and each object motion." loading="lazy">
+                </figure>
+
+                <div class="cards insights">
+                    <article class="card">
+                        <h3>Any number of objects</h3>
+                        <p>Weight-shared object slots: one model generates one to five objects.</p>
+                    </article>
+                    <article class="card">
+                        <h3>Objects follow the body</h3>
+                        <p>Each object moves with its driving joint, like a cup with the wrist.</p>
+                    </article>
+                    <article class="card">
+                        <h3>Words find their objects</h3>
+                        <p>Per-word CLIP tokens let attention link each object to its words.</p>
+                    </article>
+                    <article class="card">
+                        <h3>Contacts that hold</h3>
+                        <p>Contact guidance closes fingers on objects and stops feet from sliding.</p>
+                    </article>
+                </div>
+            </div>
+
+            <section id="results" class="subsection">
+                <div class="narrow prose">
+                    <h3 class="sub">Generated Interactions</h3>
+                    <p>
+                        COSMI generations for test prompts with up to five objects.
+                    </p>
+                </div>
+                <div class="wide">
+                    <div class="card-carousel" id="results-carousel"></div>
+                </div>
+            </section>
+
+            <section id="comparisons" class="subsection">
+                <div class="narrow prose">
+                    <h3 class="sub">Comparison with Baselines</h3>
+                    <p>
+                        We compare COSMI with HIMO and with multi-object versions of PriorMDM and MDM, all trained
+                        on the COSMI dataset. HIMO trains one model per object count, so it appears in the
+                        three-object tier only. The black chair is the unseen object of our benchmark: no training
+                        sequence contains it.
+                    </p>
+                </div>
+                <div class="wide">
+                    <div class="segmented" role="group" aria-label="Comparison tier" data-gallery="compare-gallery">
+                        <button aria-pressed="true" data-key="3obj">Three-object tier</button>
+                        <button aria-pressed="false" data-key="5obj">All-objects tier</button>
+                    </div>
+                    <div class="carousel" id="compare-gallery"></div>
+                </div>
+            </section>
+        </section>
+
+        <section id="hands" class="section">
+            <div class="narrow prose">
+                <p class="eyebrow">Extensibility</p>
+                <h2>Hand-object recordings become source clips</h2>
+                <p>
+                    Nothing in the composition is tied to a specific dataset. New objects, other datasets, and
+                    future captures enter through the same interaction rules. So do partial observations, such as
+                    hand-only recordings. A HOT3D recording, for example, captures only the hands and the object.
+                    Once we fit SMPL-X to the headset and the MANO hands, it becomes a full-body clip. The
+                    composition then combines it with other clips like any captured source.
+                </p>
+            </div>
+            <div class="wide">
+                <h3 class="sub">HOT3D Recordings with a Fitted Body</h3>
+                <div class="carousel" id="hands-dataset"></div>
+                <h3 class="sub">Multi-Object Interactions from HOT3D Clips</h3>
+                <div class="carousel" id="hands-composed"></div>
+            </div>
+        </section>
+
+        <section id="acknowledgements" class="section">
+            <div class="narrow prose">
+                <h2>Acknowledgements</h2>
+                <p>
+                    Special thanks to Riccardo Marin and Nikita Kister for the helpful discussions.
+                    We thank Margaret Kostyrko and Yuxuan Xue for sharing the SMPL-X registrations
+                    that were used for the visualizations.
+                    This work is funded by the Deutsche Forschungsgemeinschaft – 409792180
+                    (Emmy Noether Programme, project: Real Virtual Humans).
+                    Daniel Eskandar is supported by the Konrad Zuse School of Excellence in Learning
+                    and Intelligent Systems (ELIZA) through the DAAD programme Konrad Zuse School of
+                    Excellence in Artificial Intelligence, sponsored by the Federal Ministry of
+                    Education and Research.
+                    The authors thank the International Max Planck Research School for Intelligent
+                    Systems (IMPRS-IS) for supporting I.&nbsp;A.&nbsp;Petrov.
+                    G.&nbsp;Pons-Moll is a member of the Machine Learning Cluster of Excellence,
+                    EXC number 2064/1 – Project number 390727645.
+                    The project was made possible by funding from the Carl Zeiss Foundation.
+                </p>
+            </div>
+            <div class="wide logos">
+                <div class="logo-row">
+                    <img src="./static/images/logos/tuebingen.webp" alt="University of Tübingen" loading="lazy" decoding="async" width="701" height="180" style="--h: 46px;">
+                    <img src="./static/images/logos/ai-center.webp" alt="Tübingen AI Center" loading="lazy" decoding="async" width="610" height="180" style="--h: 50px;">
+                    <img src="./static/images/logos/mpi-inf.svg" alt="Max Planck Institute for Informatics" loading="lazy" decoding="async" width="1528" height="300" style="--h: 46px;">
+                </div>
+                <div class="logo-row">
+                    <img src="./static/images/logos/eliza.webp" alt="Zuse School ELIZA" loading="lazy" decoding="async" width="436" height="180" style="--h: 60px;">
+                    <img src="./static/images/logos/imprs-is.webp" alt="IMPRS-IS" loading="lazy" decoding="async" width="555" height="138" style="--h: 40px;">
+                    <img src="./static/images/logos/carl-zeiss.webp" alt="Carl Zeiss Foundation" loading="lazy" decoding="async" width="317" height="180" style="--h: 60px;">
+                </div>
+            </div>
+        </section>
+
+        <section id="bibtex" class="section">
+            <div class="narrow prose">
+                <p class="eyebrow">Citation</p>
+                <h2>BibTeX</h2>
+                <div class="code-block">
+                    <button class="button small copy" id="copy-bibtex">
+                        <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2" /><path d="M5 15V5a1 1 0 0 1 1-1h9" /></svg>
+                        <span aria-live="polite">Copy</span>
+                    </button>
+                    <pre><code id="bibtex-code"><span class="bib-type">@article</span>{<span class="bib-key">eskandar2026cosmi</span>,
+  <span class="bib-field">author</span>  = {Eskandar, Daniel and Petrov, Ilya A. and Pons-Moll, Gerard},
+  <span class="bib-field">title</span>   = {COSMI: Compositional Synthesis of Multi-Object Interactions},
+  <span class="bib-field">journal</span> = {arXiv preprint arXiv:2610.03252},
+  <span class="bib-field">year</span>    = {2026}
+}</code></pre>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>Layout inspired by
+            <a href="https://github.com/nerfies/nerfies.github.io" target="_blank" rel="noopener">Nerfies</a>.</p>
+    </footer>
+
+</body>
+
+</html>
